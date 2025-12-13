@@ -13,4 +13,8 @@ public interface PostService {
 
     public Post insertPost(String title, String body, Integer profileId, Integer postCategoryId, String imageUrl);
 
+    public void deletePost(Integer id);
+
+
+
 }

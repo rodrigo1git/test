@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Service
-public class Minioservice {
+public class MinioService {
 
         @Autowired
         private S3Client s3Client;

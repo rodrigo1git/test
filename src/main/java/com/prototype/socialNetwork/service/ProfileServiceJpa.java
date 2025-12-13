@@ -25,9 +25,10 @@ public class ProfileServiceJpa implements ProfileService{
 
     @Transactional
     @Override
-    public Profile insertProfile(String name, String secondName, String lastName, String email, String password) {
+    public Profile insertProfile(String publicName, String name, String secondName, String lastName, String email, String password) {
         String hashedPassword = passwordEncoder.encode(password);
         Profile p = new Profile();
+        p.setPublicName(publicName);
         p.setName(name);
         p.setSecondName(secondName);
         p.setLastName(lastName);
@@ -35,4 +36,12 @@ public class ProfileServiceJpa implements ProfileService{
         p.setPassword(hashedPassword);
         return profileRepository.save(p);
     }
+
+    @Override
+
+    public void deleteProfile(Integer profileId){
+        profileRepository.deleteById(profileId);
+    }
+
+
 }

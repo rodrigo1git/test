@@ -1,77 +1,61 @@
 package com.prototype.socialNetwork.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
+    // 1. ESTO FALTABA: Tu ProfileService lo necesita para compilar/arrancar,
+    // aunque no estemos logueándonos ahora mismo.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-/*
- @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. DESHABILITAR CSRF: Obligatorio para peticiones POST desde Postman sin tokens
+                // 2. Desactivar CSRF (Para POSTs)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // 2. CONFIGURAR AUTORIZACIÓN DE RUTAS
-                .authorizeHttpRequests(authorize -> authorize
-                        // Si tu endpoint es /api/profiles, esta línea es vital:
-                        //.requestMatchers("/api/profiles", "/api/profiles/**").permitAll() // <--- Permite acceso público
+                // 3. Activar CORS (Para tu HTML local)
+                .cors(Customizer.withDefaults())
 
-                        // Si quieres que todas las rutas /api/** estén abiertas temporalmente:
-                        // .requestMatchers("/api/**").permitAll()
-
-                        // Las demás rutas requieren autenticación
-                        .anyRequest().authenticated()
+                // 4. Permitir TODO (Modo pruebas total)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
                 )
-                // 3. Puedes deshabilitar por completo el login básico si no lo estás usando
-                // .httpBasic(AbstractHttpConfigurer::disable);
-                // O mantenerlo para futuros endpoints seguros
-                .httpBasic(Customizer.withDefaults()) // Usar solo autenticación Basic Auth
-                .formLogin(AbstractHttpConfigurer::disable) // <-- DESHABILITAR el formulario de login
-
-                .httpBasic(Customizer.withDefaults());
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
 
- */
-// NUEVO BEAN: Define usuarios para pruebas en memoria
-@Bean
-public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-    UserDetails usuarioPrueba = User.builder()
-            .username("admin") // Usuario para Postman
-            .password(passwordEncoder.encode("12345")) // Contraseña hasheada correctamente
-            .roles("USER")
-            .build();
-
-    return new InMemoryUserDetailsManager(usuarioPrueba);
-}
-
+    // 5. Configuración CORS permisiva
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().authenticated() // Todo requiere autenticación
-                )
-                .httpBasic(Customizer.withDefaults()); // Habilita Basic Auth para Postman
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        return http.build();
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

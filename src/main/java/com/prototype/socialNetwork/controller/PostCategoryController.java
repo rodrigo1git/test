@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/postcategory")
+@CrossOrigin(origins = "*")
 public class PostCategoryController {
 
 

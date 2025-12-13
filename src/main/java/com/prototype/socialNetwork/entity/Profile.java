@@ -35,4 +35,7 @@ public class Profile {
     @Column(name="password", nullable = false)
     private String password;
 
+    @Column(name="public_name", nullable = false)
+    private String publicName;
+
 }

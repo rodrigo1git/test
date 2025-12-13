@@ -71,4 +71,9 @@ public class PostServiceJpa implements PostService {
         post.setImageUrl(imageUrl);
         return postRepository.save(post);
     }
+
+    @Override
+    public void deletePost(Integer id){
+        postRepository.deleteById(id);
+    }
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/storage")
+@CrossOrigin(origins = "*")
 public class StorageController {
 
     @Autowired
