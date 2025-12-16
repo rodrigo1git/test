@@ -5,7 +5,7 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class FollowsRequest {
+public class FollowsRequestDTO {
 
     private Integer followerId;
     private Integer followedId;

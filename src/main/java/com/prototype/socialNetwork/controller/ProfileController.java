@@ -1,11 +1,11 @@
 package com.prototype.socialNetwork.controller;
 
-import com.prototype.socialNetwork.entity.Profile;
+import com.prototype.socialNetwork.dto.ProfileRequestDTO;
+import com.prototype.socialNetwork.dto.ProfileResponseDTO;
 import com.prototype.socialNetwork.service.ProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,36 +13,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/profiles")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class ProfileController {
 
     private final ProfileService profileService;
 
-    @Autowired
-    public ProfileController(ProfileService profileService){
-        this.profileService = profileService;
-    }
-
     @GetMapping
-    public List<Profile> getProfiles(){
-        return profileService.getProfiles();
+    public ResponseEntity<List<ProfileResponseDTO>> getProfiles(){
+        return ResponseEntity.ok(profileService.getProfiles());
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Profile createProfile(@RequestBody Profile profileData){
-        return profileService.insertProfile(
-                                        profileData.getPublicName(),
-                                        profileData.getName(),
-                                        profileData.getSecondName(),
-                                        profileData.getLastName(),
-                                        profileData.getEmail(),
-                                        profileData.getPassword());
+    // Sin @Valid: Spring no validará los campos automáticamente
+    public ResponseEntity<ProfileResponseDTO> createProfile(@RequestBody ProfileRequestDTO request){
+        ProfileResponseDTO newProfile = profileService.insertProfile(request);
+        return new ResponseEntity<>(newProfile, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteProfile(@PathVariable Integer id) {
         profileService.deleteProfile(id);
-        return ResponseEntity.noContent().build(); // Retorna 204
+        return ResponseEntity.noContent().build();
     }
-
 }

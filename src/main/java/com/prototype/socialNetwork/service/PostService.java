@@ -1,5 +1,7 @@
 package com.prototype.socialNetwork.service;
 
+import com.prototype.socialNetwork.dto.PostRequestDTO;
+import com.prototype.socialNetwork.dto.PostResponseDTO;
 import com.prototype.socialNetwork.entity.Post;
 import com.prototype.socialNetwork.entity.PostCategory;
 import com.prototype.socialNetwork.entity.Profile;
@@ -9,12 +11,14 @@ import java.util.List;
 
 public interface PostService {
 
-    public List<Post> getPosts();
+    public List<PostResponseDTO> getPosts();
 
-    public Post insertPost(String title, String body, Integer profileId, Integer postCategoryId, String imageUrl);
+    public PostResponseDTO insertPost(PostRequestDTO request);
 
     public void deletePost(Integer id);
 
+    public List<PostResponseDTO> getPostsByProfileId(Integer id);
 
+    public PostResponseDTO postResponseDTOMapping(Post post);
 
 }

@@ -1,10 +1,9 @@
 package com.prototype.socialNetwork.controller;
 
-import com.prototype.socialNetwork.dto.FollowsRequest;
-import com.prototype.socialNetwork.dto.FollowsResponse;
-import com.prototype.socialNetwork.entity.Follows;
+import com.prototype.socialNetwork.dto.FollowsRequestDTO;
+import com.prototype.socialNetwork.dto.FollowsResponseDTO;
 import com.prototype.socialNetwork.service.FollowsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor; // Cambio: Lombok
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,41 +13,29 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/follows")
 @CrossOrigin(origins = "*")
-
+@RequiredArgsConstructor // Cambio: Inyección por constructor automática
 public class FollowsController {
 
-    private FollowsService followsService;
-
-    @Autowired
-    public FollowsController(FollowsService followsService){
-        this.followsService = followsService;
-    }
+    private final FollowsService followsService;
 
     @GetMapping
-    public List<Follows> getFollowers(){
+    public List<FollowsResponseDTO> getFollowers(){
         return followsService.getFollowers();
     }
 
     @PostMapping
-    public ResponseEntity<FollowsResponse> insertFollows(@RequestBody FollowsRequest followsRequest) {
-        // 1. Insertar
-        Follows newFollow = followsService.insertFollows(
-                followsRequest.getFollowerId(),
-                followsRequest.getFollowedId()
-        );
-        // 2. Mapear a DTO (Manual para evitar bucles)
-        FollowsResponse response = new FollowsResponse();
-        response.setFollowerId(newFollow.getFollower().getId());
-        response.setFollowedId(newFollow.getFollowed().getId());
-        response.setSince(newFollow.getSince());
-
-        // Opcional: Si quieres devolver nombres, ten en cuenta que getReferenceById
-        // no trae el nombre real a menos que Hibernate haga un SELECT extra.
-        // Si solo te importan los IDs y la fecha, con lo de arriba basta.
-
+    public ResponseEntity<FollowsResponseDTO> insertFollows(@RequestBody FollowsRequestDTO followsRequest) {
+        FollowsResponseDTO response = followsService.insertFollows(followsRequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @GetMapping("/followers/{id}")
+    public List<FollowsResponseDTO> findByFollowerId(@PathVariable Integer id){
+        return followsService.findByFollowerId(id);
+    }
 
-
+    @GetMapping("/followed/{id}")
+    public List<FollowsResponseDTO> findByFollowedId(@PathVariable Integer id){
+        return followsService.findByFollowedId(id);
+    }
 }

@@ -9,11 +9,13 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FollowsResponse {
+public class FollowsResponseDTO {
 
     //private String followerName;
     //private String followedName;
     private LocalDateTime since;
     private Integer followerId;
     private Integer followedId;
+    private String followerName;
+    private String followedName;
 }
