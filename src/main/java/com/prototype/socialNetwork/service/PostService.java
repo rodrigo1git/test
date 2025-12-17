@@ -21,4 +21,6 @@ public interface PostService {
 
     public PostResponseDTO postResponseDTOMapping(Post post);
 
+    public List<PostResponseDTO> getPostsByCategory(Integer id);
+
 }

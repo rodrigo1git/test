@@ -1,6 +1,7 @@
 package com.prototype.socialNetwork.controller;
 
 import com.prototype.socialNetwork.dto.PostRequestDTO;
+import com.prototype.socialNetwork.dto.PostResponse;
 import com.prototype.socialNetwork.dto.PostResponseDTO;
 import com.prototype.socialNetwork.service.MinioService;
 import com.prototype.socialNetwork.service.PostService;
@@ -77,4 +78,8 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostsByProfileId(profileId));
     }
 
+    @GetMapping("/category/{id}")
+    public ResponseEntity<List<PostResponseDTO>> getPostByCategory(@PathVariable Integer categoryId){
+        return ResponseEntity.ok(postService.getPostsByCategory(categoryId));
+    }
 }

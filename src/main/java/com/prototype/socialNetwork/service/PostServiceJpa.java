@@ -99,8 +99,20 @@ public class PostServiceJpa implements PostService {
         postRepository.deleteById(id);
     }
 
+    @Override
     public List<PostResponseDTO> getPostsByProfileId(Integer id){
         List<Post> posts = postRepository.getPostsByProfileId(id);
+        List<PostResponseDTO> dtos = new ArrayList<>();
+        for(Post p: posts){
+            dtos.add(postResponseDTOMapping(p));
+        }
+        return dtos;
+    }
+
+
+    @Override
+    public List<PostResponseDTO> getPostsByCategory(Integer id){
+        List<Post> posts = postRepository.findPostByCategory(id);
         List<PostResponseDTO> dtos = new ArrayList<>();
         for(Post p: posts){
             dtos.add(postResponseDTOMapping(p));
