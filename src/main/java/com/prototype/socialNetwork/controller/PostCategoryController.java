@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+//HAY QUE AGREGAR METODO FINDBYID PARA PODER ENCONTRAR EL NOMBRE DE LA CATEGORIA FACILMENTE
 
 @RestController
 @RequestMapping("/api/postcategory")

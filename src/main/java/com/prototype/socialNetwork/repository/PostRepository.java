@@ -10,8 +10,17 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
 
-    // Correcto (Navegando la relación)
+
     @Query("SELECT p FROM Post p WHERE p.profile.id = :id")
     public List<Post> getPostsByProfileId(@Param ("id") Integer id);
+
+    @Query("SELECT p FROM Post p WHERE p.category.categoryId = :id")
+    public List<Post> findPostByCategory(@Param("id") Integer id);
+
+    @Query(value = "SELECT p.* FROM Post p " +
+                    "WHERE EXISTS (SELECT 1 FROM Follows f " +
+                    "WHERE f.id_follower = :id AND f.id_followed = p.profile_id)",
+            nativeQuery = true)
+    List<Post> findPostByFollowerId(@Param("id") Integer userId);
 
 }

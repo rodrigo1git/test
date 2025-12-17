@@ -2,6 +2,7 @@ package com.prototype.socialNetwork.service;
 
 import com.prototype.socialNetwork.dto.ProfileRequestDTO;
 import com.prototype.socialNetwork.dto.ProfileResponseDTO;
+import com.prototype.socialNetwork.dto.RegisterRequestDTO;
 import com.prototype.socialNetwork.entity.Profile;
 import com.prototype.socialNetwork.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,8 @@ public class ProfileServiceJpa implements ProfileService {
 
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
+
+
 
     // --- Mappers Privados ---
 
@@ -77,5 +80,11 @@ public class ProfileServiceJpa implements ProfileService {
             // Opcional: lanzar excepción o ignorar
             throw new RuntimeException("Perfil no encontrado");
         }
+    }
+
+    @Override
+    public ProfileResponseDTO findByEmail(String email) {
+        Profile profile = profileRepository.findByEmail(email);
+        return mapToResponse(profile);
     }
 }

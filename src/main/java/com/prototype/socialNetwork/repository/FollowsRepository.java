@@ -20,4 +20,5 @@ public interface FollowsRepository extends JpaRepository<Follows, FollowsId> {
     // 2. Ver quién me sigue (Mis "Seguidores")
     // SQL equiv: SELECT * FROM follows WHERE followed_id = :id
     List<Follows> findByFollowedId(Integer id);
+
 }
