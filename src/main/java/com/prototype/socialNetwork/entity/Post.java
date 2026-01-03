@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.time.LocalDate;
+import org.hibernate.annotations.JdbcTypeCode; // <--- NUEVO
+import org.hibernate.type.SqlTypes;           // <--- NUEVO
 import java.time.LocalDateTime;
+import java.util.List;                        // <--- NUEVO
 
 @Entity
 @Table(name = "post")
@@ -22,7 +24,6 @@ public class Post {
     @Column(name = "post_title")
     private String postTitle;
 
-    // "TEXT" en Postgres se mapea a String, pero es bueno explicitar la definición
     @Column(name = "post_body", nullable = false, columnDefinition = "TEXT")
     private String postBody;
 
@@ -32,14 +33,21 @@ public class Post {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "like_count")
+    private Integer likeCount;
+
+    // === NUEVO: VECTOR DE INTELIGENCIA ARTIFICIAL ===
+    // Aquí se guardarán los 768 números que representan el significado del post
+    @Column(name = "embedding", columnDefinition = "vector(768)")
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    private float[] embedding;
+
     // --- RELACIONES (Foreign Keys) ---
 
-    // FK a Profile
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
-    // FK a PostCategory
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private PostCategory category;

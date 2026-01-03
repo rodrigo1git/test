@@ -1,11 +1,13 @@
 package com.prototype.socialNetwork.controller;
 
+import com.prototype.socialNetwork.dto.PostCategoryUpdateDTO;
 import com.prototype.socialNetwork.dto.PostRequestDTO;
-import com.prototype.socialNetwork.dto.PostResponse;
 import com.prototype.socialNetwork.dto.PostResponseDTO;
+import com.prototype.socialNetwork.entity.PostCategory;
 import com.prototype.socialNetwork.service.MinioService;
+import com.prototype.socialNetwork.service.PostCategoryService;
 import com.prototype.socialNetwork.service.PostService;
-import lombok.RequiredArgsConstructor; // Recomendado usar esto
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ public class PostController {
 
     private final PostService postService;
     private final MinioService minioService;
+    private static final float CATEGORY_CONFIDENCE_THRESHOLD = 0.55f;
 
     // NOTA: @Autowired no es necesario si usas @RequiredArgsConstructor de Lombok.
 
@@ -56,10 +59,13 @@ public class PostController {
         request.setImageUrl(imageUrl);
 
         // 3. Reutilizamos la lógica del servicio (polimorfismo / reuso)
-        PostResponseDTO response = postService.insertPost(request);
+        PostResponseDTO response = postService.insertPostManual(request); //---------SACAR MANUAL PARA VOLVER A AUTOMATIZAR CATEGORIAS-----------------------------------------
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+
+
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Integer postId){
@@ -87,6 +93,13 @@ public class PostController {
     public ResponseEntity<List<PostResponseDTO>> getPostByFollowerId(@PathVariable Integer id){
         return ResponseEntity.ok(postService.getPostsByFollowerId(id));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponseDTO> getPostById(@PathVariable Integer id) {
+        return ResponseEntity.ok(postService.getPostById(id));
+    }
+
+
 
 
 

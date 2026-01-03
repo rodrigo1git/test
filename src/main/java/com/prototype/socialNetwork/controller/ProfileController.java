@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/profiles")
+// CAMBIO IMPORTANTE: De plural 'profiles' a singular 'profile'
+@RequestMapping("/api/profile")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class ProfileController {
@@ -24,7 +25,6 @@ public class ProfileController {
     }
 
     @PostMapping
-    // Sin @Valid: Spring no validará los campos automáticamente
     public ResponseEntity<ProfileResponseDTO> createProfile(@RequestBody ProfileRequestDTO request){
         ProfileResponseDTO newProfile = profileService.insertProfile(request);
         return new ResponseEntity<>(newProfile, HttpStatus.CREATED);
@@ -35,4 +35,13 @@ public class ProfileController {
         profileService.deleteProfile(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Este endpoint es el que usa la página de perfil para cargar la cabecera
+    @GetMapping("/{id}")
+    public ResponseEntity<ProfileResponseDTO> findProfile(@PathVariable Integer id){
+        ProfileResponseDTO profile = profileService.findById(id);
+        return ResponseEntity.ok(profile);
+    }
+
+
 }

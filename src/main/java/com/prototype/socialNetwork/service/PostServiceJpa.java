@@ -3,19 +3,25 @@ package com.prototype.socialNetwork.service;
 import com.prototype.socialNetwork.dto.PostRequestDTO;
 import com.prototype.socialNetwork.dto.PostResponse;
 import com.prototype.socialNetwork.dto.PostResponseDTO;
+import com.prototype.socialNetwork.dto.SimilarCategoryDTO;
 import com.prototype.socialNetwork.entity.Post;
 import com.prototype.socialNetwork.entity.PostCategory;
 import com.prototype.socialNetwork.entity.Profile;
 import com.prototype.socialNetwork.repository.PostCategoryRepository;
 import com.prototype.socialNetwork.repository.PostRepository;
 import com.prototype.socialNetwork.repository.ProfileRepository;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceJpa implements PostService {
@@ -26,6 +32,14 @@ public class PostServiceJpa implements PostService {
     private PostCategoryRepository postCategoryRepository;
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private EmbeddingModel embeddingModel;
+
+    private static final float CATEGORY_CONFIDENCE_THRESHOLD = 0.7f;
+    private static final Integer GENERAL_CATEGORY_ID = 4;
+
+
 
     // Método Mapper: Sin llamar a repositorios externos
     public PostResponseDTO postResponseDTOMapping(Post post) {
@@ -43,7 +57,7 @@ public class PostServiceJpa implements PostService {
 
         dto.setCategoryName(post.getCategory().getName());
         dto.setCategoryId(post.getCategory().getCategoryId());
-
+        dto.setLikeCount(post.getLikeCount());
 
         return dto;
     }
@@ -59,11 +73,6 @@ public class PostServiceJpa implements PostService {
             dtos.add(postResponseDTOMapping(post)); // Pasamos 'post', no 'posts'
         }
         return dtos;
-
-        // Opción Moderna (Java Streams) - Recomendada
-        // return posts.stream()
-        //            .map(this::postResponseDTOMapping)
-        //            .collect(Collectors.toList());
     }
 
 
@@ -71,28 +80,109 @@ public class PostServiceJpa implements PostService {
     @Transactional
     @Override
     public PostResponseDTO insertPost(PostRequestDTO request) {
-        // 1. Crear Entidad
+        // 1. Crear Entidad y Mapear datos simples
         Post post = new Post();
-
-        // 2. Mapear datos simples
         post.setPostTitle(request.getTitle());
         post.setPostBody(request.getBody());
         post.setImageUrl(request.getImageUrl());
-        post.setPostDate(LocalDateTime.now());
+        post.setPostDate(LocalDateTime.now()); // Ojo: Si usas dateTime en el front, asegúrate que se llame igual
 
-        // 3. Referencias (Optimizadas con getReferenceById)
+        // 2. Referencias
         Profile profile = profileRepository.getReferenceById(request.getProfileId());
-        PostCategory postCategory = postCategoryRepository.getReferenceById(request.getCategoryId());
+
+        // 3. Generar Embedding (Vector)
+        String contentToEmbed = request.getTitle() + " " + request.getBody();
+        float[] embedVector = embeddingModel.embed(contentToEmbed);
+        post.setEmbedding(embedVector);
+
+        // 4. Lógica de Categorización Inteligente (RAG - Retrieval Augmented Generation logic)
+
+        // A. Buscar las 5 categorías "conceptualmente" más cercanas
+        List<SimilarCategoryDTO> categories = postCategoryRepository.findSimilarCategories(embedVector);
+
+        // B. Extraer IDs de esas categorías candidatas
+        List<Integer> ids = categories.stream()
+                .map(SimilarCategoryDTO::getCategoryId)
+                .collect(Collectors.toList());
+
+        // C. Buscar los posts vecinos (K-Nearest Neighbors) pero SOLO dentro de esas categorías candidatas
+        // Esto refina la búsqueda: "¿A qué se parece este post comparado con otros posts reales?"
+        List<SimilarCategoryDTO> similarPosts = postRepository.findNearestNeighborCategories(embedVector, ids);
+
+        // 🔍 DEBUG — observar similitudes reales (temporal)
+        // DEBUG TEMPORAL — inspeccionar similitudes
+        for (SimilarCategoryDTO dto : similarPosts) {
+            System.out.println(
+                    "[CLASSIFIER] candidateCategory=" + dto.getCategoryId() +
+                            " similarity=" + dto.getSimilarity()
+            );
+        }
+
+
+        // D. Algoritmo de Votación por Mayoría (Majority Vote)
+        Integer winningCategoryId = similarPosts.stream()
+                // 1. (Opcional pero recomendado) Filtro previo de calidad:
+                // Solo dejamos votar a los vecinos que superen el umbral de similitud.
+                .filter(dto -> dto.getSimilarity() >= CATEGORY_CONFIDENCE_THRESHOLD)
+
+                // 2. Agrupar por Categoría y CONTAR cuántas veces aparece cada una
+                .collect(Collectors.groupingBy(
+                        SimilarCategoryDTO::getCategoryId,
+                        Collectors.counting() // <--- CAMBIO CLAVE: Cuenta repeticiones
+                ))
+
+                // 3. Convertir el Mapa (ID -> Cantidad) a Stream para procesarlo
+                .entrySet().stream()
+
+                // 4. Elegir la entrada con el VALOR más alto (mayor cantidad de votos)
+                .max(Map.Entry.comparingByValue())
+
+                // 5. Extraer el ID de la categoría ganadora
+                .map(Map.Entry::getKey)
+
+                // 6. Si no hay vecinos o ninguno pasó el filtro, asignar General
+                .orElse(GENERAL_CATEGORY_ID);
+
+        // 5. Asignar Categoría Final y Guardar
+        PostCategory postCategory = postCategoryRepository.getReferenceById(winningCategoryId);
 
         post.setProfile(profile);
         post.setCategory(postCategory);
 
-        // 4. Guardar
         Post postGuardado = postRepository.save(post);
 
-        // 5. CRÍTICO: Devolver DTO, nunca la entidad
         return postResponseDTOMapping(postGuardado);
     }
+
+    @Override
+    @Transactional
+    public PostResponseDTO insertPostManual(PostRequestDTO request) {
+        // 1. Crear Entidad y Mapear datos simples
+        Post post = new Post();
+        post.setPostTitle(request.getTitle());
+        post.setPostBody(request.getBody());
+        post.setImageUrl(request.getImageUrl());
+        post.setPostDate(LocalDateTime.now());
+        Profile profile = profileRepository.getReferenceById(request.getProfileId());
+
+        Integer categoryId = request.getCategoryId();
+
+        PostCategory postCategory = postCategoryRepository.getReferenceById(categoryId);
+
+        String contentToEmbed = request.getTitle() + " " + request.getBody();
+        float[] embedVector = embeddingModel.embed(contentToEmbed);
+        post.setEmbedding(embedVector);
+
+        // 5. Asignar relaciones y Guardar
+        post.setProfile(profile);
+        post.setCategory(postCategory);
+
+        Post postGuardado = postRepository.save(post);
+
+        return postResponseDTOMapping(postGuardado);
+    }
+
+
 
     @Override
     public void deletePost(Integer id){
@@ -129,6 +219,13 @@ public class PostServiceJpa implements PostService {
         }
         return dtos;
     }
+
+    @Override
+    public PostResponseDTO getPostById(Integer id){
+        Post p = postRepository.getReferenceById(id);
+        return postResponseDTOMapping(p);
+    }
+
 
 
 }

@@ -22,7 +22,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService; // Spring inyectará tu JpaUserDetailsService aquí
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -31,47 +31,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // 1. Obtener el header que trae el token
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
 
-        // 2. Si no hay header o no empieza con "Bearer ", dejamos pasar la petición (quizás es pública)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 3. Extraer el token (quitamos "Bearer " que son 7 caracteres)
         jwt = authHeader.substring(7);
 
-        // 4. Extraer el email del token
-        userEmail = jwtService.extractUsername(jwt);
+        try {
+            // INTENTAMOS EXTRAER EL EMAIL
+            // Si el token expiró, esto lanzará una excepción
+            userEmail = jwtService.extractUsername(jwt);
 
-        // 5. Si hay email y el usuario no está autenticado todavía en el contexto
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            // Buscamos al usuario en la BD
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
-            // 6. Validamos el token
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-
-                // 7. Si es válido, creamos la sesión de seguridad (AuthenticationToken)
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // 8. ¡Mágia! Le decimos a Spring: "Este usuario está logueado"
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            // === CAMBIO IMPORTANTE ===
+            // Si el token está expirado o malformado, NO hacemos nada.
+            // Simplemente no autenticamos al usuario y dejamos que la petición siga.
+            // Si la ruta es pública (/api/post), funcionará.
+            // Si la ruta es privada, Spring Security devolverá 403 más adelante.
+            System.out.println("Token inválido o expirado: " + e.getMessage());
         }
 
-        // 9. Continuar con la cadena de filtros
         filterChain.doFilter(request, response);
     }
 }

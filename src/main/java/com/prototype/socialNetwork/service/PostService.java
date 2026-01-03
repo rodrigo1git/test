@@ -5,6 +5,7 @@ import com.prototype.socialNetwork.dto.PostResponseDTO;
 import com.prototype.socialNetwork.entity.Post;
 import com.prototype.socialNetwork.entity.PostCategory;
 import com.prototype.socialNetwork.entity.Profile;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,4 +25,9 @@ public interface PostService {
     public List<PostResponseDTO> getPostsByCategory(Integer id);
 
     public List<PostResponseDTO> getPostsByFollowerId(Integer id);
+
+    public PostResponseDTO getPostById(Integer id);
+    public PostResponseDTO insertPostManual(PostRequestDTO request);
+
+
 }

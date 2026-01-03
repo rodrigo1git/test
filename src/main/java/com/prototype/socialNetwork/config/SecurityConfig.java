@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/postcategory/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/likedpost").permitAll()
 
                         // PRIVADO: Crear, Borrar, Editar (Cualquier otra cosa)
                         .anyRequest().authenticated()
@@ -73,7 +74,8 @@ public class SecurityConfig {
     // Bean que conecta UserDetailsService con PasswordEncoder
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsServiceJpa);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsServiceJpa);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

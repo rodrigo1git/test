@@ -13,6 +13,8 @@ public interface ProfileService {
     ProfileResponseDTO insertProfile(ProfileRequestDTO request);
     void deleteProfile(Integer profileId);
     ProfileResponseDTO findByEmail(String email);
+    ProfileResponseDTO findById(Integer id);
+
 
     //public Profile updatePassword(String OldPassword, String newPassword);
 }

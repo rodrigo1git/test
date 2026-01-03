@@ -1,10 +1,12 @@
 package com.prototype.socialNetwork.controller;
 
 
+import com.prototype.socialNetwork.dto.PostCategoryUpdateDTO;
 import com.prototype.socialNetwork.entity.PostCategory;
 import com.prototype.socialNetwork.service.PostCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +14,7 @@ import java.util.List;
 //HAY QUE AGREGAR METODO FINDBYID PARA PODER ENCONTRAR EL NOMBRE DE LA CATEGORIA FACILMENTE
 
 @RestController
-@RequestMapping("/api/postcategory")
+@RequestMapping("/api/post-category")
 @CrossOrigin(origins = "*")
 public class PostCategoryController {
 
@@ -32,7 +34,22 @@ public class PostCategoryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PostCategory insertPostCategory(@RequestBody PostCategory postCategoryData ){
-        return postCategoryService.insertCategory(postCategoryData.getName());
+        return postCategoryService.insertCategory(postCategoryData.getName(), postCategoryData.getDescription());
     }
 
-}
+
+
+        @PutMapping("/description") // O la ruta que prefieras, ej: "/update"
+        public ResponseEntity<PostCategory> updateCategoryDescription(@RequestBody PostCategoryUpdateDTO request) {
+
+            // Validamos que venga el ID para evitar errores
+            if (request.getId() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Llamamos al servicio pasando los datos del DTO
+            PostCategory updatedCategory = postCategoryService.updateCategoryDescription(request);
+
+            return ResponseEntity.ok(updatedCategory);
+        }
+    }

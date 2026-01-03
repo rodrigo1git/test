@@ -30,4 +30,5 @@ public class PostResponseDTO { // Es buena práctica ponerle el sufijo DTO
 
     // 6. Metadatos
     private LocalDateTime dateTime;
+    private Integer likeCount;
 }

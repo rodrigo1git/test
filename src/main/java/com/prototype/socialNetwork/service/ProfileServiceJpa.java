@@ -2,7 +2,6 @@ package com.prototype.socialNetwork.service;
 
 import com.prototype.socialNetwork.dto.ProfileRequestDTO;
 import com.prototype.socialNetwork.dto.ProfileResponseDTO;
-import com.prototype.socialNetwork.dto.RegisterRequestDTO;
 import com.prototype.socialNetwork.entity.Profile;
 import com.prototype.socialNetwork.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -87,4 +86,12 @@ public class ProfileServiceJpa implements ProfileService {
         Profile profile = profileRepository.findByEmail(email);
         return mapToResponse(profile);
     }
+
+    @Override
+    public ProfileResponseDTO findById(Integer id){
+        Profile p = profileRepository.getReferenceById(id);
+        return mapToResponse(p);
+    }
+
+
 }
