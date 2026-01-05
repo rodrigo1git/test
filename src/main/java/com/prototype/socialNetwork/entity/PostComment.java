@@ -27,7 +27,6 @@ public class PostComment {
     @Column(name = "comment_date", nullable = false)
     private LocalDate commentDate;
 
-    // Relación Muchos Comentarios -> Un Post
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;

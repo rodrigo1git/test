@@ -36,13 +36,10 @@ public class Post {
     @Column(name = "like_count")
     private Integer likeCount;
 
-    // === NUEVO: VECTOR DE INTELIGENCIA ARTIFICIAL ===
-    // Aquí se guardarán los 768 números que representan el significado del post
     @Column(name = "embedding", columnDefinition = "vector(768)")
     @JdbcTypeCode(SqlTypes.VECTOR)
     private float[] embedding;
 
-    // --- RELACIONES (Foreign Keys) ---
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)

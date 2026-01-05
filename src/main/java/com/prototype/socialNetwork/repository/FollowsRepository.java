@@ -13,12 +13,8 @@ import java.util.List;
 public interface FollowsRepository extends JpaRepository<Follows, FollowsId> {
 
 
-    // 1. Ver a quién sigo (Mis "Seguidos")
-    // SQL equiv: SELECT * FROM follows WHERE follower_id = :id
     List<Follows> findByFollowerId(Integer id);
 
-    // 2. Ver quién me sigue (Mis "Seguidores")
-    // SQL equiv: SELECT * FROM follows WHERE followed_id = :id
     List<Follows> findByFollowedId(Integer id);
 
 }

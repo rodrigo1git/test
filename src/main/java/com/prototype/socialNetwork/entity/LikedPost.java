@@ -14,7 +14,7 @@ public class LikedPost {
     private LikedPostId id;
 
     @ManyToOne
-    @MapsId("postId") // Vincula con el ID dentro del Embeddable
+    @MapsId("postId")
     @JoinColumn(name = "post_id")
     private Post post;
 

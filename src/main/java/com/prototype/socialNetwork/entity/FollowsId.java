@@ -13,7 +13,6 @@ import java.io.Serializable;
 @Embeddable
 public class FollowsId implements Serializable {
 
-    // Estos nombres deben coincidir con los argumentos de @MapsId en la entidad Follows
     private Integer followerId;
     private Integer followedId;
 }

@@ -14,5 +14,5 @@ import java.io.Serializable;
 public class LikedPostId implements Serializable {
     private Integer postId;
     private Integer profileId;
-    // Getters, Setters, equals() y hashCode() OBLIGATORIOS
+
 }

@@ -13,6 +13,5 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Intege
     @Query("SELECT c FROM PostComment c WHERE c.post.postId = :postId")
     List<PostComment> findByPostId(Integer postId);
 
-    // Busca por el ID del objeto 'profile' dentro del comentario
     List<PostComment> findByProfileId(Integer profileId);
 }

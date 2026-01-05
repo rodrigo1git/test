@@ -41,9 +41,7 @@ public class Profile {
     private String publicName;
 
     @JdbcTypeCode(SqlTypes.VECTOR)
-    @Column(name = "user_embedding") // Opcional si el nombre coincide
+    @Column(name = "user_embedding")
     private float[] userEmbedding;
-
-// No olvides generar los Getters y Setters
 
 }
