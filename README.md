@@ -47,26 +47,26 @@ El proyecto utiliza una estructura híbrida que combina tablas relacionales, col
 ### Tablas Principales
 
 * **`profile`**: Almacena la información de los usuarios.
-* `id`: Identificador único.
-* `user_embedding`: Columna de tipo `vector(768)`. Representa el **promedio de los gustos** del usuario.
-* `photo`: URL pública o interna que apunta a la imagen de perfil almacenada en **MinIO**.
-* `like_count`: Contador utilizado para calcular el promedio móvil.
+    * `id`: Identificador único.
+    * `user_embedding`: Columna de tipo `vector(768)`. Representa el **promedio de los gustos** del usuario.
+    * `photo`: URL pública o interna que apunta a la imagen de perfil almacenada en **MinIO**.
+    * `like_count`: Contador utilizado para calcular el promedio móvil.
 
 
 * **`post`**: Almacena las publicaciones.
-* `post_id`: Identificador único.
-* `embedding`: Columna de tipo `vector(768)`. Representación numérica del contenido.
-* `image_url`: Referencia a la imagen adjunta almacenada en **MinIO**.
-* `category_id`: Clave foránea determinada automáticamente.
+    * `post_id`: Identificador único.
+    * `embedding`: Columna de tipo `vector(768)`. Representación numérica del contenido.
+    * `image_url`: Referencia a la imagen adjunta almacenada en **MinIO**.
+    * `category_id`: Clave foránea determinada automáticamente.
 
 
 * **`post_category`**: Catálogo de categorías.
-* `category_id`: Identificador único.
-* `embedding`: Vector del "centro conceptual" de la categoría.
+    * `category_id`: Identificador único.
+    * `embedding`: Vector del "centro conceptual" de la categoría.
 
 
 * **`liked_post`**: Tabla intermedia transaccional.
-* `pk`: Clave compuesta (`post_id`, `profile_id`) para evitar duplicados.
+    * `pk`: Clave compuesta (`post_id`, `profile_id`).
 
 
 
