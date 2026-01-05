@@ -1,9 +1,6 @@
 package com.prototype.socialNetwork.service;
 
-import com.prototype.socialNetwork.dto.PostRequestDTO;
-import com.prototype.socialNetwork.dto.PostResponse;
-import com.prototype.socialNetwork.dto.PostResponseDTO;
-import com.prototype.socialNetwork.dto.SimilarCategoryDTO;
+import com.prototype.socialNetwork.dto.*;
 import com.prototype.socialNetwork.entity.Post;
 import com.prototype.socialNetwork.entity.PostCategory;
 import com.prototype.socialNetwork.entity.Profile;
@@ -50,8 +47,6 @@ public class PostServiceJpa implements PostService {
         dto.setImageUrl(post.getImageUrl());
         dto.setDateTime(post.getPostDate());
 
-        // USAR LAS RELACIONES YA EXISTENTES EN EL OBJETO
-
         dto.setAutorName(post.getProfile().getPublicName());
         dto.setProfileId(post.getProfile().getId());
 
@@ -63,14 +58,13 @@ public class PostServiceJpa implements PostService {
     }
 
     @Override
-    @Transactional(readOnly = true) // Importante para mantener la sesión de DB abierta
+    @Transactional(readOnly = true)
     public List<PostResponseDTO> getPosts() {
         List<Post> posts = postRepository.findAll();
 
-        // Opción Clásica (Corrigiendo el error de la variable 'p')
         List<PostResponseDTO> dtos = new ArrayList<>();
         for(Post post : posts){
-            dtos.add(postResponseDTOMapping(post)); // Pasamos 'post', no 'posts'
+            dtos.add(postResponseDTOMapping(post));
         }
         return dtos;
     }
@@ -85,7 +79,7 @@ public class PostServiceJpa implements PostService {
         post.setPostTitle(request.getTitle());
         post.setPostBody(request.getBody());
         post.setImageUrl(request.getImageUrl());
-        post.setPostDate(LocalDateTime.now()); // Ojo: Si usas dateTime en el front, asegúrate que se llame igual
+        post.setPostDate(LocalDateTime.now());
 
         // 2. Referencias
         Profile profile = profileRepository.getReferenceById(request.getProfileId());
@@ -95,7 +89,6 @@ public class PostServiceJpa implements PostService {
         float[] embedVector = embeddingModel.embed(contentToEmbed);
         post.setEmbedding(embedVector);
 
-        // 4. Lógica de Categorización Inteligente (RAG - Retrieval Augmented Generation logic)
 
         // A. Buscar las 5 categorías "conceptualmente" más cercanas
         List<SimilarCategoryDTO> categories = postCategoryRepository.findSimilarCategories(embedVector);
@@ -121,7 +114,6 @@ public class PostServiceJpa implements PostService {
 
         // D. Algoritmo de Votación por Mayoría (Majority Vote)
         Integer winningCategoryId = similarPosts.stream()
-                // 1. (Opcional pero recomendado) Filtro previo de calidad:
                 // Solo dejamos votar a los vecinos que superen el umbral de similitud.
                 .filter(dto -> dto.getSimilarity() >= CATEGORY_CONFIDENCE_THRESHOLD)
 
@@ -182,6 +174,15 @@ public class PostServiceJpa implements PostService {
         return postResponseDTOMapping(postGuardado);
     }
 
+    @Override
+    public List<PostResponseDTO> getRecommendedPosts(RecommendRequestDTO request) {
+        List<Post> posts = postRepository.recommendPosts(request.getVector(), request.getId());
+        List<PostResponseDTO> dtos = new ArrayList<>();
+        for(Post p: posts){
+            dtos.add(postResponseDTOMapping(p));
+        }
+        return dtos;
+    }
 
 
     @Override
@@ -225,6 +226,8 @@ public class PostServiceJpa implements PostService {
         Post p = postRepository.getReferenceById(id);
         return postResponseDTOMapping(p);
     }
+
+
 
 
 

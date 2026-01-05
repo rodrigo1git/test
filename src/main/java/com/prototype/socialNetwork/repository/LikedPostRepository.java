@@ -39,6 +39,12 @@ public interface LikedPostRepository extends JpaRepository<LikedPost, LikedPostI
             @Param("postId") Integer postId
     );
 
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM liked_post p
+            WHERE p.profile_id = id
+            """, nativeQuery = true)
+    int likeCount(@Param("id") Integer id);
 
 
 
