@@ -1,58 +1,101 @@
-Backend de Red Social con IA y Búsqueda Vectorial
-Este proyecto es el backend de una red social desarrollado con Java 21 y Spring Boot 3. Integra Inteligencia Artificial local (Ollama) y una base de datos PostgreSQL con soporte vectorial para automatizar la categorización de publicaciones y generar recomendaciones personalizadas.
 
-Tecnologías Utilizadas
-Lenguaje: Java 21
+# Backend de Red Social con IA y Búsqueda Vectorial
 
-Framework: Spring Boot 3.2.9
+Este proyecto es el backend de una red social desarrollado con **Java 21** y **Spring Boot 3**. Integra **Inteligencia Artificial local (Ollama)** y **PostgreSQL**.
+La finalidad es hacer pruebas con los embeddings que brinda el modelo nombic-embed-text de ollama
 
-Base de Datos: PostgreSQL 16+ con extensión pgvector
+## Tecnologías Utilizadas
 
-ORM: Hibernate 6 / Spring Data JPA
+* **Lenguaje:** Java 21
+* **Framework:** Spring Boot 3.2.9
+* **Base de Datos:** PostgreSQL 16+ con extensión `pgvector`, MinIO para almacenar imagenes.
+* **ORM:** Hibernate 6 / Spring Data JPA
+* **IA:** Spring AI con Ollama (corriendo localmente)
+* **Modelo de Embeddings:** `nomic-embed-text` (768 dimensiones)
+* **Seguridad:** Spring Security y JWT
 
-IA: Spring AI con Ollama (corriendo localmente)
+## Funcionalidades Principales
 
-Modelo: nomic-embed-text (768 dimensiones)
+### 1. Categorización Automática
 
-Seguridad: Spring Security y JWT
+El sistema asigna una **categoría** a cada publicación sin intervención del usuario. El proceso es el siguiente:
 
-Funcionalidades Principales
-1. Categorización Automática
-El sistema asigna una categoría a cada publicación sin intervención del usuario. El proceso es el siguiente:
+1. Se convierte el texto de la publicación en un **vector numérico (embedding)**.
+2. Se buscan en la base de datos las publicaciones más **similares** a la nueva (K-Nearest Neighbors).
+3. Se aplica un **algoritmo de votación ponderada**: se suman los puntajes de similitud de los vecinos encontrados agrupados por categoría. La categoría con mayor puntaje acumulado es la asignada. Si no hay suficiente coincidencia, se asigna la categoría "General".
 
-Se convierte el texto de la publicación en un vector numérico (embedding).
+### 2. Sistema de Recomendaciones (Content-Based Filtering)
 
-Se buscan en la base de datos las publicaciones más similares a la nueva.
-
-Se aplica un algoritmo de votación: se suman los puntajes de similitud de los vecinos encontrados. La categoría con mayor puntaje acumulado es la asignada. Si no hay suficiente coincidencia, se asigna la categoría "General".
-
-2. Sistema de Recomendaciones
 El sistema recomienda contenido basándose en el historial de "me gusta" del usuario.
 
-Cada usuario tiene un vector en la base de datos que representa sus intereses promedio.
+* Cada usuario tiene un **vector en la base de datos** que representa sus intereses promedio.
+* Cuando el usuario da "me gusta" a una publicación, su vector personal se actualiza dinámicamente utilizando una **Media Móvil Acumulativa**. Esto promedia su historial previo con el vector de la nueva publicación.
+* Para recomendar, el sistema realiza una consulta de **distancia coseno** para encontrar las publicaciones matemáticamente más cercanas al vector del usuario.
 
-Cuando el usuario da "me gusta" a una publicación, su vector personal se actualiza promediando su vector actual con el vector de la publicación.
+### 3. Funciones de red social.
 
-Para recomendar, el sistema busca las publicaciones matemáticamente más cercanas al vector del usuario.
+El sistema permite crear un usuario, crear posts, comentar, likear, seguir.
 
-3. Búsqueda Semántica
-Permite buscar publicaciones por su significado o contexto, en lugar de buscar solo por palabras exactas.
+## Estructura de la Base de Datos
 
-Estructura de la Base de Datos
-El proyecto utiliza una estructura híbrida que combina tablas relacionales con columnas de vectores.
+El proyecto utiliza una estructura híbrida que combina tablas relacionales tradicionales con columnas de vectores.
 
-profile: Guarda los datos del usuario. Incluye una columna user_embedding que almacena el promedio de sus gustos.
+### Tablas Principales
 
-post: Guarda el contenido y la columna embedding generada por la IA.
+* **`profile`**: Almacena la información de los usuarios.
+* `id`: Identificador único.
+* `user_embedding`: Columna de tipo `vector(768)`. Representa el **promedio de los gustos** del usuario y evoluciona con cada like.
+* `like_count`: Contador utilizado para calcular matemáticamente el promedio móvil de los vectores.
 
-post_category: Guarda las categorías disponibles.
 
-liked_post: Tabla intermedia para registrar las interacciones entre usuarios y publicaciones.
+* **`post`**: Almacena las publicaciones.
+* `post_id`: Identificador único.
+* `embedding`: Columna de tipo `vector(768)`. Es la representación numérica del título y cuerpo del post generada por la IA.
+* `category_id`: Clave foránea determinada automáticamente por el algoritmo de clasificación.
 
-Instalación y Configuración
-Requisitos
-Java 21 instalado.
 
-PostgreSQL instalado y configurado.
+* **`post_category`**: Catálogo de categorías (Ej: Tecnología, Deportes).
+* `category_id`: Identificador único.
+* `embedding`: Columna de tipo `vector(768)`. Representa el "centro conceptual" de la categoría, útil para validaciones de similitud.
 
-Ollama instalado y ejecutándose.
+
+* **`liked_post`**: Tabla intermedia transaccional.
+* `pk`: Clave compuesta (`post_id`, `profile_id`) para evitar duplicados (un usuario no puede dar like dos veces al mismo post).
+* `liked_date`: Fecha de la interacción.
+
+
+
+## Instalación y Configuración
+
+### Requisitos
+
+* **Java 21** instalado.
+* **PostgreSQL** instalado y configurado.
+* **Ollama** instalado y ejecutándose.
+
+### Pasos
+
+1. **Configurar Ollama:**
+Descarga el modelo de embeddings necesario ejecutando:
+```bash
+ollama pull nomic-embed-text
+
+```
+
+
+2. **Configurar Base de Datos:**
+Habilita la extensión vectorial en PostgreSQL:
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+
+```
+
+
+3. **Ejecutar la aplicación:**
+Usa Maven para iniciar el proyecto:
+```bash
+mvn spring-boot:run
+
+```
+
+
