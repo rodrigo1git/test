@@ -2,7 +2,7 @@
 
 ---
 
-# Backend de Red Social con IA y Búsqueda Vectorial
+# Backend de Red Social Basica
 
 Este proyecto es el backend de una red social desarrollado con **Java 21** y **Spring Boot 3**. Integra **Ollama** y una base de datos **PostgreSQL** con soporte vectorial para automatizar la categorización de publicaciones y generar recomendaciones personalizadas. Además, utiliza **MinIO** para el almacenamiento eficiente de archivos multimedia y está contenerizado con **Docker** para facilitar el despliegue.
 
