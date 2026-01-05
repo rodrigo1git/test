@@ -39,15 +39,13 @@ public class PostCategoryController {
 
 
 
-        @PutMapping("/description") // O la ruta que prefieras, ej: "/update"
+        @PutMapping("/description")
         public ResponseEntity<PostCategory> updateCategoryDescription(@RequestBody PostCategoryUpdateDTO request) {
 
-            // Validamos que venga el ID para evitar errores
             if (request.getId() == null) {
                 return ResponseEntity.badRequest().build();
             }
 
-            // Llamamos al servicio pasando los datos del DTO
             PostCategory updatedCategory = postCategoryService.updateCategoryDescription(request);
 
             return ResponseEntity.ok(updatedCategory);

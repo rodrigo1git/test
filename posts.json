@@ -1,0 +1,72 @@
+[
+  {
+    "title": "La Evolución del Sonido: Del Blues al Hard Rock",
+    "body": "El rock and roll no nació en un vacío, sino que es el hijo rebelde del blues y el country. A medida que la tecnología de amplificación avanzó en los años 60, bandas como Cream y The Jimi Hendrix Experience comenzaron a empujar los límites de lo que era aceptable en volumen y distorsión. Esta transición marcó el nacimiento del Hard Rock, donde los riffs pesados y las secciones rítmicas contundentes se convirtieron en la norma, sentando las bases para todo el metal que vendría después.",
+    "profileId": 13,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "La Psicodelia y la Expansión de la Mente Musical",
+    "body": "A finales de los años 60, el rock dio un giro hacia lo experimental con la llegada de la psicodelia. Bandas como Pink Floyd y The Doors no solo buscaban entretener, sino transportar al oyente a otros estados de conciencia. Utilizando efectos de estudio innovadores, letras surrealistas y estructuras de canciones no convencionales, crearon álbumes conceptuales que se deben escuchar de principio a fin como una obra de arte completa, alejándose del formato de single comercial.",
+    "profileId": 15,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "El Ritual del Vinilo en la Cultura Rock",
+    "body": "Para el verdadero aficionado al rock, no hay nada que se compare con la experiencia de escuchar un vinilo. El proceso de sacar el disco de la funda, admirar el arte de la portada a gran escala y colocar la aguja con delicadeza es casi religioso. El sonido analógico ofrece una calidez y una profundidad en los bajos y las guitarras que, a menudo, se pierde en la compresión digital moderna, permitiendo escuchar la música exactamente como la banda la concibió en el estudio.",
+    "profileId": 28,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "La Explosión del Grunge en Seattle",
+    "body": "A principios de los 90, el mundo de la música necesitaba un cambio drástico tras el exceso del glam metal, y la respuesta vino desde Seattle. El Grunge, liderado por Nirvana, Pearl Jam y Soundgarden, trajo de vuelta la crudeza y la honestidad emocional al rock. Con guitarras distorsionadas, camisas de franela y letras que hablaban de angustia y alienación social, este subgénero conectó profundamente con una generación entera que se sentía incomprendida.",
+    "profileId": 20,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "La Guitarra Eléctrica como Voz Principal",
+    "body": "En la historia del rock, la guitarra eléctrica ha sido mucho más que un instrumento de acompañamiento; ha sido la voz principal de la rebelión. Guitarristas icónicos como Jimmy Page, Eddie Van Halen y Slash desarrollaron técnicas únicas que definieron décadas enteras. Desde el tapping vertiginoso hasta el uso expresivo del wah-wah, el solo de guitarra se convirtió en el momento cumbre de las canciones, permitiendo una expresividad emocional que a veces superaba a la propia voz humana.",
+    "profileId": 14,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "El Punk Rock: Tres Acordes y la Verdad",
+    "body": "Como reacción contra el rock progresivo excesivamente técnico de los 70, el Punk surgió con una premisa simple: cualquiera puede formar una banda. Grupos como The Ramones y The Clash demostraron que la actitud y la energía eran más importantes que el virtuosismo. Con canciones rápidas, cortas y cargadas de mensajes políticos y sociales, el punk devolvió el rock a las calles y empoderó a la juventud para cuestionar la autoridad y el status quo.",
+    "profileId": 25,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "La Importancia de la Sección Rítmica",
+    "body": "Aunque los cantantes y guitarristas suelen llevarse la gloria, el verdadero motor de una banda de rock es su sección rítmica. La combinación de un bajista sólido y un baterista potente es lo que hace que la gente mueva la cabeza. Pensemos en la química entre John Bonham y John Paul Jones en Led Zeppelin; sin esa base pesada y llena de groove, los riffs de guitarra no tendrían el impacto sísmico que los caracteriza.",
+    "profileId": 18,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "El Britpop y la Rivalidad de los 90",
+    "body": "Mientras Estados Unidos estaba inmerso en el Grunge, el Reino Unido vivía su propia revolución cultural con el Britpop. Oasis y Blur protagonizaron una de las rivalidades más famosas de la música, dividiendo al país. Este movimiento rescató la herencia melódica de The Beatles y The Kinks, combinándola con una actitud arrogante y festiva que definió la identidad británica de la década y dejó himnos que se siguen cantando en estadios de fútbol hoy en día.",
+    "profileId": 22,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "Rock Progresivo: Arquitectura Musical",
+    "body": "El rock progresivo es quizás el subgénero más ambicioso, donde la música rock se encuentra con la música clásica y el jazz. Bandas como Yes, Genesis y Rush no tenían miedo de componer canciones de 20 minutos con múltiples cambios de compás y temáticas de ciencia ficción o fantasía. Este estilo exige un nivel técnico altísimo y una atención al detalle que transformó el rock de música de baile a una experiencia auditiva intelectual.",
+    "profileId": 16,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  },
+  {
+    "title": "El Indie Rock del Nuevo Milenio",
+    "body": "A principios de los 2000, hubo un renacimiento del garage rock liderado por bandas como The Strokes y The White Stripes. Volviendo a lo básico con sonidos crudos y producciones menos pulidas, revitalizaron la escena del rock alternativo. Este movimiento demostró que, a pesar del auge de la música electrónica y el pop prefabricado, siempre habrá un lugar en las listas de éxitos para un grupo de amigos haciendo ruido con guitarras en un garaje.",
+    "profileId": 27,
+    "categoryId": 1,
+    "imageUrl": "http://localhost:9000/network/40fa42ff-a374-444f-a54b-ca98bcdab41c_rony.jpeg"
+  }
+]

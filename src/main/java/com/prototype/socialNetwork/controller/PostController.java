@@ -19,14 +19,13 @@ import java.util.List;
 @RestController
 @RequestMapping("api/post")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor // Genera el constructor automáticamente para los campos final
+@RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
     private final MinioService minioService;
     private static final float CATEGORY_CONFIDENCE_THRESHOLD = 0.55f;
 
-    // NOTA: @Autowired no es necesario si usas @RequiredArgsConstructor de Lombok.
 
 
     @GetMapping
@@ -34,9 +33,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getPosts());
     }
 
-    // ==========================================
-    // MÉTODO 1: ORIGINAL (Solo JSON)
-    // ==========================================
+    //solo json
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostResponseDTO> insertPost(@RequestBody PostRequestDTO request) {
         // El servicio ya devuelve el DTO listo, no hay que mapear nada aquí
@@ -44,9 +41,7 @@ public class PostController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // ==========================================
-    // MÉTODO 2: CON IMAGEN (Multipart)
-    // ==========================================
+    //json+imagen
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostResponseDTO> insertPostWithImage(
             @RequestPart("file") MultipartFile file,
@@ -58,7 +53,6 @@ public class PostController {
         // 2. Inyectamos la URL en el DTO
         request.setImageUrl(imageUrl);
 
-        // 3. Reutilizamos la lógica del servicio (polimorfismo / reuso)
         PostResponseDTO response = postService.insertPostManual(request); //---------SACAR MANUAL PARA VOLVER A AUTOMATIZAR CATEGORIAS-----------------------------------------
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);

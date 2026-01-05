@@ -13,7 +13,6 @@ import java.net.URI;
 @Configuration
 public class MinioConfig {
 
-    // 1. Inyección de Propiedades (desde application.properties)
     @Value("${minio.access.key}")
     private String accessKey;
 
@@ -26,7 +25,6 @@ public class MinioConfig {
     @Value("${minio.region}")
     private String region;
 
-    // 2. Definición del Bean S3Client
     @Bean
     public S3Client s3Client() {
 
@@ -35,10 +33,10 @@ public class MinioConfig {
 
         // b. Construye y configura el cliente para MinIO local
         return S3Client.builder()
-                .endpointOverride(URI.create(endpointUrl)) // <--- Obliga a usar la URL de MinIO (localhost:9000)
+                .endpointOverride(URI.create(endpointUrl))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .region(Region.of(region))
-                .forcePathStyle(true) // <--- NECESARIO para que MinIO funcione correctamente
+                .forcePathStyle(true)
                 .build();
     }
 }

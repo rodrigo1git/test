@@ -18,7 +18,7 @@ public class FollowsController {
 
     private final FollowsService followsService;
 
-    // Endpoint general (opcional)
+
     @GetMapping
     public List<FollowsResponseDTO> getFollowers(){
         return followsService.getFollowers();
@@ -30,16 +30,14 @@ public class FollowsController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // === SEGUIDORES (Gente que sigue al usuario ID) ===
-    // CAMBIO: Ruta ajustada a /{id}/followers
+    //seguidores
     @GetMapping("/{id}/followers")
     public List<FollowsResponseDTO> getFollowersByUserId(@PathVariable Integer id){
         // Si busco por "followedId" (seguido), obtengo quiénes me siguen a mí
         return followsService.findByFollowedId(id);
     }
 
-    // === SEGUIDOS (Gente a la que el usuario ID sigue) ===
-    // CAMBIO: Ruta ajustada a /{id}/following
+    //seguidos
     @GetMapping("/{id}/following")
     public List<FollowsResponseDTO> getFollowingByUserId(@PathVariable Integer id){
         // Si busco por "followerId" (seguidor), obtengo a quiénes sigo yo

@@ -55,7 +55,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 """)
     void decrementLikeCount(@Param("postId") Integer postId);
 
-
+    @Query(value = """
+    SELECT p.* FROM post p
+    WHERE p.id NOT IN (SELECT lp.post_id FROM liked_post lp WHERE lp.profile_id = :profileId) -- No mostrar repetidos
+    ORDER BY p.embedding <=> cast(:userVector as vector) ASC
+    LIMIT 10
+    """, nativeQuery = true)
+    List<Post> recommendPosts(@Param("userVector") float[] userVector, @Param("profileId") Integer profileId);
 
 
 

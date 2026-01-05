@@ -29,8 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter; // Inyectamos al portero
-    private final UserDetailsServiceJpa userDetailsServiceJpa; // Inyectamos la lógica de DB
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final UserDetailsServiceJpa userDetailsServiceJpa;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,40 +38,40 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
 
-                // 1. GESTIÓN DE PERMISOS (Aquí defines quién entra y quién no)
+
                 .authorizeHttpRequests(auth -> auth
-                        // PÚBLICO: Login y Registro
+
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // PÚBLICO: Ver posts y categorías (GET)
+
                         .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/postcategory/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/likedpost").permitAll()
 
-                        // PRIVADO: Crear, Borrar, Editar (Cualquier otra cosa)
+
                         .anyRequest().authenticated()
                 )
 
-                // 2. SESIÓN STATELESS (Importante para JWT: No guardar cookies)
+
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // 3. PROVEEDOR DE AUTENTICACIÓN
+
                 .authenticationProvider(authenticationProvider())
 
-                // 4. AÑADIR NUESTRO FILTRO ANTES DEL DE SPRING
+
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // Bean para encriptar contraseñas (Igual que tenías antes)
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Bean que conecta UserDetailsService con PasswordEncoder
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -80,13 +80,13 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // Bean para manejar el Login (lo usaremos en el AuthController)
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // Configuración CORS (Igual que tenías antes)
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

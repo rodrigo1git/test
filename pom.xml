@@ -129,7 +129,7 @@
 
 	</dependencies>
 
-	<!-- Spring AI BOM -->
+	<!-- Spring AI  -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

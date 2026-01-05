@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-// CAMBIO IMPORTANTE: De plural 'profiles' a singular 'profile'
 @RequestMapping("/api/profile")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
@@ -36,7 +35,6 @@ public class ProfileController {
         return ResponseEntity.noContent().build();
     }
 
-    // Este endpoint es el que usa la página de perfil para cargar la cabecera
     @GetMapping("/{id}")
     public ResponseEntity<ProfileResponseDTO> findProfile(@PathVariable Integer id){
         ProfileResponseDTO profile = profileService.findById(id);

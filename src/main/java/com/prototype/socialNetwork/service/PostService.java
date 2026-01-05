@@ -2,6 +2,7 @@ package com.prototype.socialNetwork.service;
 
 import com.prototype.socialNetwork.dto.PostRequestDTO;
 import com.prototype.socialNetwork.dto.PostResponseDTO;
+import com.prototype.socialNetwork.dto.RecommendRequestDTO;
 import com.prototype.socialNetwork.entity.Post;
 import com.prototype.socialNetwork.entity.PostCategory;
 import com.prototype.socialNetwork.entity.Profile;
@@ -28,6 +29,8 @@ public interface PostService {
 
     public PostResponseDTO getPostById(Integer id);
     public PostResponseDTO insertPostManual(PostRequestDTO request);
+
+    public List<PostResponseDTO> getRecommendedPosts(RecommendRequestDTO request);
 
 
 }

@@ -60,7 +60,6 @@ public class PostCommentController {
         String imageUrl = minioService.uploadImage(file);
 
         // 2. Guardar comentario pasando la URL generada
-        // Nota: El servicio recibe (DTO, StringUrl)
         PostCommentResponseDTO response = postCommentService.insertComment(request, imageUrl);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);

@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TestController {
 
-    // Inyectamos el servicio que acabas de crear
     private final UserDetailsServiceJpa userDetailsService;
 
     @GetMapping("/{email}")
     public UserDetails probarCargaUsuario(@PathVariable String email) {
-        // Esto intentará buscar el usuario y devolverá el UserPrincipal (JSON)
         return userDetailsService.loadUserByUsername(email);
     }
 }

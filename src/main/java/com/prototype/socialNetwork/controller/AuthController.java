@@ -23,13 +23,9 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserDetailsServiceJpa userDetailsService;
-
-    // CAMBIO: Inyectamos el Servicio, NO el Repositorio ni el Encoder
     private final ProfileService profileService;
 
-    // En AuthController.java
 
-    // REGISTER
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@RequestBody ProfileRequestDTO request) {
         ProfileResponseDTO user = profileService.insertProfile(request);
@@ -40,7 +36,6 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponseDTO(token, user.getName(), user.getId()));
     }
 
-    // LOGIN
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO request) {
         authenticationManager.authenticate(
@@ -50,7 +45,6 @@ public class AuthController {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtService.generateToken(userDetails);
 
-        // Buscamos el perfil para sacar nombre e ID
         ProfileResponseDTO profile = profileService.findByEmail(request.getEmail());
 
         return ResponseEntity.ok(new AuthResponseDTO(token, profile.getName(), profile.getId()));
