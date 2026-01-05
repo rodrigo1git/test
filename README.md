@@ -1,8 +1,8 @@
 
-# Backend de Red Social con IA y Búsqueda Vectorial
+# Backend basico de red social
 
-Este proyecto es el backend de una red social desarrollado con **Java 21** y **Spring Boot 3**. Integra **Inteligencia Artificial local (Ollama)** y **PostgreSQL**.
-La finalidad es hacer pruebas con los embeddings que brinda el modelo nombic-embed-text de ollama
+Este proyecto es el backend de una red social desarrollado con **Java 21** y **Spring Boot 3**. Integra **Ollama** y **PostgreSQL**.
+La finalidad es hacer pruebas con los embeddings que brinda el modelo nombic-embed-text de ollama y ver como se integra la ia para el manejo de datos a baja escala
 
 ## Tecnologías Utilizadas
 
