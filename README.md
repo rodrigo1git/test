@@ -1,90 +1,58 @@
-# Copia de basica de Twitter Backend
+Backend de Red Social con IA y Búsqueda Vectorial
+Este proyecto es el backend de una red social desarrollado con Java 21 y Spring Boot 3. Integra Inteligencia Artificial local (Ollama) y una base de datos PostgreSQL con soporte vectorial para automatizar la categorización de publicaciones y generar recomendaciones personalizadas.
 
-Este proyecto es el backend de una red social que emula a Twitter construida con **Java 21** y **Spring Boot 3**. 
-Esta aplicación integra capacidades de **Inteligencia Artificial Generativa** (Spring AI + Ollama) 
-y **Búsqueda Vectorial** (PostgreSQL + pgvector) para automatizar la categorización de contenido y personalizar la experiencia del usuario en tiempo real sin depender de modelos externos costosos.
+Tecnologías Utilizadas
+Lenguaje: Java 21
 
-## Tech Stack
+Framework: Spring Boot 3.2.9
 
-### Core
-* **Lenguaje:** Java 21
-* **Framework:** Spring Boot 3.2.9
-* **Build Tool:** Maven
+Base de Datos: PostgreSQL 16+ con extensión pgvector
 
-### Datos & IA
-* **Base de Datos:** PostgreSQL 16+
-* **Extensión Vectorial:** `pgvector`
-* **ORM:** Hibernate 6 / Spring Data JPA
-* **IA Integration:** Spring AI (0.8.x / 1.0.0-Mx)
-* **Modelo de Embeddings:** Ollama local (`nomic-embed-text`)
+ORM: Hibernate 6 / Spring Data JPA
 
-### Seguridad
-* **Autenticación:** Spring Security + JWT (Stateless)
+IA: Spring AI con Ollama (corriendo localmente)
 
----
+Modelo: nomic-embed-text (768 dimensiones)
 
-##  Características Principales & Lógica de Negocio
+Seguridad: Spring Security y JWT
 
-### 1. Categorización Automática Inteligente (RAG + K-NN Hybrid)
-Al crear un post:
-1.  **Vectorización:** Se genera un embedding (vector de 768 dimensiones) del contenido del post usando Ollama.
-2.  **Eleccion de categorias cantidatas:** Se eligen n categorias candidatas(se comparan los vectores de cada categoria con el vector del post y se eligen las mas cercanas) 
-3.  **Búsqueda de Vecinos (K-NN):** Se buscan los posts más similares semánticamente en la base de datos, antes se filtran los posts segun las categorias candidatas.
-4.  **Algoritmo de Votación Ponderada (Weighted Voting):**
-    * En lugar de una votación simple, sumamos los *scores de similitud* de los vecinos por categoría.
-    * Si la categoría ganadora supera el `CATEGORY_CONFIDENCE_THRESHOLD`, se asigna automáticamente.
-    * Si hay un "empate técnico" o baja confianza, se asigna a "General".
+Funcionalidades Principales
+1. Categorización Automática
+El sistema asigna una categoría a cada publicación sin intervención del usuario. El proceso es el siguiente:
 
-### 2. Perfilado de Usuario Dinámico (Content-Based Filtering)
-El sistema aprende de los gustos del usuario en tiempo real sin necesidad de re-entrenar modelos complejos de Deep Learning.
-* **User Embedding:** Cada perfil tiene un vector (`user_embedding`) que representa el "centro de gravedad" de sus intereses.
-* **Algoritmo de Media Móvil (Cumulative Moving Average):**
-    * Cuando un usuario da "Like", su vector personal se actualiza matemáticamente:
-    * $$V_{nuevo} = \frac{(V_{actual} \times N) + V_{post}}{N + 1}$$
-    * Esto permite que la recomendación evolucione instantáneamente con cada interacción.
+Se convierte el texto de la publicación en un vector numérico (embedding).
 
-### 3. Recomendaciones Personalizadas
-El feed de "Para ti" se genera mediante una consulta vectorial híbrida:
-* Se buscan los posts cuya distancia coseno sea menor respecto al `user_embedding` actual.
-* Se excluyen posts ya interactuados (vistos/likeados).
+Se buscan en la base de datos las publicaciones más similares a la nueva.
 
-### 4. Optimización de Rendimiento JPA
-* Uso extensivo de `getReferenceById` en lugar de `findById` para operaciones de escritura (como Likes), evitando consultas `SELECT` innecesarias y trabajando con Proxies de Hibernate.
+Se aplica un algoritmo de votación: se suman los puntajes de similitud de los vecinos encontrados. La categoría con mayor puntaje acumulado es la asignada. Si no hay suficiente coincidencia, se asigna la categoría "General".
 
----
+2. Sistema de Recomendaciones
+El sistema recomienda contenido basándose en el historial de "me gusta" del usuario.
 
-## Arquitectura de Base de Datos
+Cada usuario tiene un vector en la base de datos que representa sus intereses promedio.
 
-El esquema se basa en tablas relacionales con columnas vectoriales especializadas.
+Cuando el usuario da "me gusta" a una publicación, su vector personal se actualiza promediando su vector actual con el vector de la publicación.
 
-### Tablas Clave
+Para recomendar, el sistema busca las publicaciones matemáticamente más cercanas al vector del usuario.
 
-* **`post`**
-    * `id` (PK)
-    * `embedding`: `vector(768)` (Generado por `nomic-embed-text`)
-    * `like_count`: `bigint DEFAULT 0`
-* **`profile`**
-    * `id` (PK)
-    * `user_embedding`: `vector(768)` (Promedio de gustos)
-* **`post_category`**
-    * `category_id` (PK)
-    * `embedding`: `vector(768)` (Centroide de la categoría)
-* **`liked_post`**
-    * `post_id`, `profile_id` (Composite PK - Evita duplicados a nivel de DB)
-    * `liked_date`: `timestamp`
+3. Búsqueda Semántica
+Permite buscar publicaciones por su significado o contexto, en lugar de buscar solo por palabras exactas.
 
----
+Estructura de la Base de Datos
+El proyecto utiliza una estructura híbrida que combina tablas relacionales con columnas de vectores.
 
-##  Configuración del Entorno
+profile: Guarda los datos del usuario. Incluye una columna user_embedding que almacena el promedio de sus gustos.
 
-### 1. Requisitos Previos
-* Tener **Ollama** instalado y corriendo.
-* Descargar el modelo de embeddings:
-    ```bash
-    ollama pull nomic-embed-text
-    ```
-* Tener PostgreSQL instalado.
+post: Guarda el contenido y la columna embedding generada por la IA.
 
-### 2. Base de Datos
-Es obligatorio activar la extensión `vector` en la base de datos:
+post_category: Guarda las categorías disponibles.
 
+liked_post: Tabla intermedia para registrar las interacciones entre usuarios y publicaciones.
+
+Instalación y Configuración
+Requisitos
+Java 21 instalado.
+
+PostgreSQL instalado y configurado.
+
+Ollama instalado y ejecutándose.
