@@ -2,6 +2,7 @@ package com.prototype.socialNetwork.service;
 
 import com.prototype.socialNetwork.dto.LikedPostRequestDTO;
 import com.prototype.socialNetwork.dto.LikedPostResponseDTO;
+import com.prototype.socialNetwork.dto.PostResponseDTO;
 import com.prototype.socialNetwork.entity.LikedPost;
 import com.prototype.socialNetwork.entity.LikedPostId;
 import com.prototype.socialNetwork.entity.Post;
@@ -9,8 +10,12 @@ import com.prototype.socialNetwork.entity.Profile;
 import com.prototype.socialNetwork.repository.LikedPostRepository;
 import com.prototype.socialNetwork.repository.PostRepository;
 import com.prototype.socialNetwork.repository.ProfileRepository;
+import com.prototype.socialNetwork.utils.Mapper;
 import com.prototype.socialNetwork.utils.VectorUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,82 +31,54 @@ public class LikedPostServiceJpa implements LikedPostService{
     private final PostRepository postRepository;
     private final ProfileRepository profileRepository;
     private final VectorUtils vectorUtils;
+    private final Mapper mapper;
 
     @Override
     public List<LikedPostResponseDTO> getLikes() {
-        List<LikedPost> likes = likedPostRepository.findAll();
-        List<LikedPostResponseDTO> dtos = new ArrayList<>();
-        for(LikedPost l: likes){
-            dtos.add(mapToResponse(l));
-        }
-        return dtos;
+        return mapper.mapLikeToResponse(likedPostRepository.findAll());
     }
 
     @Override
     @Transactional
     public LikedPostResponseDTO insertLike(LikedPostRequestDTO request) {
 
-        // 2. Traer entidades completas (necesitamos los vectores)
+        LikedPostId id = new LikedPostId(request.getPostId(), request.getProfileId());
+
+        if (likedPostRepository.existsById(id)) {
+            LikedPost existing = likedPostRepository.getReferenceById(id);
+            return mapper.mapToResponse(existing); // 🟢 Devolvemos 200 OK con el existente
+        }
         Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(() -> new RuntimeException("Post no existe"));
 
         Profile profile = profileRepository.findById(request.getProfileId())
                 .orElseThrow(() -> new RuntimeException("Perfil no existe"));
 
-        // 3. Calcular el nuevo vector del usuario (Lógica Two-Tower simplificada)
+        // 3. Calcular el nuevo vector del usuario
+        // AHORA ES SEGURO: Solo calculamos esto si es un like NUEVO
         long currentLikes = likedPostRepository.likeCount(profile.getId());
 
         float[] newPreferences = vectorUtils.calculateNewAverage(
-                profile.getUserEmbedding(), // Vector actual (puede ser null)
-                post.getEmbedding(),        // Vector del post
-                currentLikes                // Cantidad de likes antes de este
+                profile.getUserEmbedding(),
+                post.getEmbedding(),
+                currentLikes
         );
 
-        // 4. Actualizar Perfil
         profile.setUserEmbedding(newPreferences);
         profileRepository.save(profile);
 
-        // 5. Guardar la relación LikedPost (para historial y evitar duplicados)
-        LikedPostId id = new LikedPostId(request.getPostId(), request.getProfileId());
         LikedPost likedPost = new LikedPost();
         likedPost.setId(id);
         likedPost.setPost(post);
         likedPost.setProfile(profile);
         likedPost.setLikedDate(LocalDateTime.now());
 
-        LikedPost saved = likedPostRepository.save(likedPost);
-        return mapToResponse(saved);
-    }
-
-
-    /*
-    @Transactional
-    @Override
-    public LikedPostResponseDTO insertLike(LikedPostRequestDTO request) {
-        // 1. Obtener "Proxies" (Referencias ligeras, sin query a DB todavía)
-        Post postRef = postRepository.getReferenceById(request.getPostId());
-        Profile profileRef = profileRepository.getReferenceById(request.getProfileId());
-
-        // 2. Crear la entidad Like
-        LikedPost likedPost = new LikedPost();
-
-        // 3. Crear el ID Compuesto
-        LikedPostId id = new LikedPostId(request.getPostId(), request.getProfileId());
-        likedPost.setId(id);
-
-
-
-        likedPost.setPost(postRef);
-        likedPost.setProfile(profileRef);
-        likedPost.setLikedDate(LocalDateTime.now());
-
-        LikedPost saved = likedPostRepository.save(likedPost);
         postRepository.incrementLikeCount(request.getPostId());
 
-        return mapToResponse(saved);
+        LikedPost saved = likedPostRepository.save(likedPost);
+        return mapper.mapToResponse(saved);
     }
 
-     */
 
     @Override
     public void dislikePost(LikedPostRequestDTO request) {
@@ -109,30 +86,28 @@ public class LikedPostServiceJpa implements LikedPostService{
         id.setProfileId(request.getProfileId());
         id.setPostId(request.getPostId());
         likedPostRepository.deleteById(id);
+        postRepository.decrementLikeCount(request.getPostId());
     }
 
     @Override
     public List<LikedPostResponseDTO> getLikesById(Integer id) {
-        List<LikedPost> likes = likedPostRepository.getByProfileId(id);
+        return mapper.mapLikeToResponse(likedPostRepository.getByProfileId(id));
+    }
+
+
+    @Override
+    public List<LikedPostResponseDTO> insertLike(List<LikedPostRequestDTO> likes) {
         List<LikedPostResponseDTO> dtos = new ArrayList<>();
-        for(LikedPost l: likes){
-            dtos.add(mapToResponse(l));
+        for(LikedPostRequestDTO like: likes){
+            dtos.add(insertLike(like));
         }
         return dtos;
     }
 
-    @Transactional
-    @Override
-    public void likePost(Integer profileId, Integer postId) {
-        int inserted = likedPostRepository.insertIfNotExists(profileId, postId);
 
-        if (inserted == 1) {
-            postRepository.incrementLikeCount(postId);
-        }
+    public Slice<PostResponseDTO> getLikedPosts(Integer targetId, Integer viewerId, int pageNumber) {
+        Integer safeViewerId = (viewerId != null) ? viewerId : -1;
+        Pageable pageable = PageRequest.of(pageNumber, 10);
+        return likedPostRepository.getLikedPostsSlice(targetId, safeViewerId, pageable);
     }
-
-    private LikedPostResponseDTO mapToResponse(LikedPost post){
-        return new LikedPostResponseDTO(post.getId().getPostId(), post.getId().getProfileId(), post.getLikedDate());
-    }
-
 }

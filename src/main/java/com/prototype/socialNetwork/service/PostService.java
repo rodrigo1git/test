@@ -2,35 +2,31 @@ package com.prototype.socialNetwork.service;
 
 import com.prototype.socialNetwork.dto.PostRequestDTO;
 import com.prototype.socialNetwork.dto.PostResponseDTO;
-import com.prototype.socialNetwork.dto.RecommendRequestDTO;
 import com.prototype.socialNetwork.entity.Post;
-import com.prototype.socialNetwork.entity.PostCategory;
-import com.prototype.socialNetwork.entity.Profile;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Slice;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface PostService {
 
-    public List<PostResponseDTO> getPosts();
+    public Slice<PostResponseDTO> getPosts(Integer id, int page);
 
     public PostResponseDTO insertPost(PostRequestDTO request);
 
     public void deletePost(Integer id);
 
-    public List<PostResponseDTO> getPostsByProfileId(Integer id);
+    public List<PostResponseDTO> getPostsByProfileId(Integer id, int page, Integer viewerId);
 
-    public PostResponseDTO postResponseDTOMapping(Post post);
+    public List<PostResponseDTO> getPostsByCategory(Integer id, int page, Integer viewerId);
 
-    public List<PostResponseDTO> getPostsByCategory(Integer id);
+    public List<PostResponseDTO> getPostsByFollowerId(Integer id, int page, Integer viewerId);
 
-    public List<PostResponseDTO> getPostsByFollowerId(Integer id);
+    public PostResponseDTO getPostById(Integer id, Integer viewerId);
 
-    public PostResponseDTO getPostById(Integer id);
     public PostResponseDTO insertPostManual(PostRequestDTO request);
 
-    public List<PostResponseDTO> getRecommendedPosts(RecommendRequestDTO request);
+    //public List<PostResponseDTO> getRecommendedPosts(Integer id);
+    public List<PostResponseDTO> getRecommendedPosts(Integer id, int pageNumber);
 
 
 }

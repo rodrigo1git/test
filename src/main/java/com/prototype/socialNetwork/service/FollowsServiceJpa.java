@@ -6,6 +6,7 @@ import com.prototype.socialNetwork.entity.Follows;
 import com.prototype.socialNetwork.entity.FollowsId;
 import com.prototype.socialNetwork.repository.FollowsRepository;
 import com.prototype.socialNetwork.repository.ProfileRepository;
+import com.prototype.socialNetwork.utils.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,28 +22,19 @@ public class FollowsServiceJpa implements FollowsService {
     // Cambio: 'final' para que Lombok genere el constructor
     private final FollowsRepository followsRepository;
     private final ProfileRepository profileRepository;
-
-    private FollowsResponseDTO followsResponseDTOMapping(Follows follows){
-        FollowsResponseDTO response = new FollowsResponseDTO();
-        response.setFollowedId(follows.getId().getFollowedId());
-        response.setFollowerId(follows.getId().getFollowerId());
-        response.setSince(follows.getSince());
-        response.setFollowedName(profileRepository.getReferenceById(response.getFollowedId()).getPublicName());
-        response.setFollowerName(profileRepository.getReferenceById(response.getFollowerId()).getPublicName());
-        return response;
-    }
+    private final Mapper mapper;
 
     @Override
     public List<FollowsResponseDTO> getFollowers() {
         List<Follows> follows = followsRepository.findAll();
         List<FollowsResponseDTO> dtos = new ArrayList<>();
         for(Follows f: follows){
-            dtos.add(followsResponseDTOMapping(f));
+            dtos.add(mapper.mapToResponse(f));
         }
         return dtos;
     }
 
-    @Transactional // Ahora usa org.springframework.transaction.annotation.Transactional
+    @Transactional
     @Override
     public FollowsResponseDTO insertFollows(FollowsRequestDTO followsRequestDTO) {
         Integer followerId = followsRequestDTO.getFollowerId();
@@ -50,27 +42,17 @@ public class FollowsServiceJpa implements FollowsService {
         FollowsId followsId = new FollowsId(followerId, followedId);
         Follows follow = new Follows(followsId, profileRepository.getReferenceById(followerId), profileRepository.getReferenceById(followedId), LocalDateTime.now());
         Follows savedFollow = followsRepository.save(follow);
-        return followsResponseDTOMapping(savedFollow);
+        return mapper.mapToResponse(savedFollow);
     }
 
     @Override
     public List<FollowsResponseDTO> findByFollowerId(Integer id) {
-        List<Follows> follows = followsRepository.findByFollowerId(id);
-        List<FollowsResponseDTO> dtos = new ArrayList<>();
-        for(Follows f: follows){
-            dtos.add(followsResponseDTOMapping(f));
-        }
-        return dtos;
+        return mapper.mapToResponse(followsRepository.findByFollowerId(id));
     }
-
     @Override
     public List<FollowsResponseDTO> findByFollowedId(Integer id) {
-        List<Follows> follows = followsRepository.findByFollowedId(id);
-        List<FollowsResponseDTO> dtos = new ArrayList<>();
-        for(Follows f: follows){
-            dtos.add(followsResponseDTOMapping(f));
-        }
-        return dtos;
+
+        return mapper.mapToResponse(followsRepository.findByFollowedId(id));
     }
 
 

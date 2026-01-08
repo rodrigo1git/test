@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/likedpost").permitAll()
 
 
+
                         .anyRequest().authenticated()
                 )
 
